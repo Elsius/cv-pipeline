@@ -2,9 +2,12 @@ from mss import MSS
 import mss.tools
 import time
 import pyautogui
-# pyautogui.position() returns mouse pos (x,y) use with screencapture's left/top to cap at mouse pos
-# screencapture and annotatecapture needs the x/y positions normalized.
+import cv2
+from PIL import Image, ImageTk
+from ultralytics import YOLO
 
+# pyautogui.position() returns mouse pos (x,y) use with screencapture's left/top to cap at mouse pos
+# capture/annotate will offset mouse pos as center of target
 
 
 def screencapture(output = "capture", left=0, top=0, width=1920, height=1080):
@@ -24,4 +27,8 @@ def annotatecapture(output = "capture", left = 0, top = 0, width = 1920, height 
     with open(txt_output, 'a') as f:
         f.write(f"{class_id} {left} {top} {width} {height}\n")
 
-
+def convert_yolo_to_pil(result): # Converts result > numpy array > PIL Image
+    annotated_frame = result[0].plot()
+    annotated_frame_rgb = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)
+    pil_img = Image.fromarray(annotated_frame_rgb)
+    return pil_img

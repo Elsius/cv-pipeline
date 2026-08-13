@@ -1,12 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
-from functions import *
+from ultralytics import YOLO
+from src.cv_pipeline.vision.utils import *
+from pathlib import Path
 
+CURRENT_DIR = Path(__file__).resolve().parent
+MODEL_PATH = CURRENT_DIR.parent / "models" / "yolo26n.pt"
 
 class mainMenu:
-    def __init__(self, root):
+    def __init__(self, root, model_path: Path = MODEL_PATH):
         root.title("CV")
-
+        self.model = YOLO(model_path)
         # capture settings
         mainframe = ttk.Frame(root, padding="10")
         mainframe.grid(column=0, row=0, sticky=(tk.N, tk.W, tk.E, tk.S))
@@ -60,7 +64,7 @@ class mainMenu:
             pass
     def run_inference(self, path="capturehotkey.png"):
         try:
-            results = model(path, save=False)
+            results = self.model(path, save=False)
             pil_img = convert_yolo_to_pil(results)
             tk_img = ImageTk.PhotoImage(pil_img)
             self.capture_label.image = tk_img
@@ -68,9 +72,3 @@ class mainMenu:
             self.capture_label.pack(expand=True, fill="both", padx=10, pady=10)
         except Exception as e:
             print(f"Inference Error: {e}")
-
-model = YOLO("yolo26n.pt")
-root = tk.Tk()
-# root.geometry("400x300")
-mainMenu(root)
-root.mainloop()
